@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Bangun model brainrot dari Part: badan + kepala + mata + topi rarity + tag nama.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")

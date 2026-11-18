@@ -1,3 +1,4 @@
+<!-- R3 rewrite terekam 2026-11-18. -->
 # CURI BRAINROT: BANJIR MIE AYAM
 
 Entri make.fun `roblox-brainrot-01` — game 3D steal-a-brainrot Indonesia (Luau + Rojo).

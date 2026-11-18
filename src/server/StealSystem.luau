@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Ancaman 1, maling: curi dari base tak terkunci, pikul lambat, tampar menjatuhkan.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

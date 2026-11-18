@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Ancaman 3, bos telur: pecahkan telur, bos bangun dan mengejar sampai base.
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

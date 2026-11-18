@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Bot pencuri: beli di belt, bawa pulang, dan curi dari base pemain yang tak terkunci.
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

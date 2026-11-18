@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Hitung uang: format tampilan Indonesia + rumus income brainrot.
 local Economy = {}
 

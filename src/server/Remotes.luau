@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- RemoteEvent client-server: dibuat sekali di ReplicatedStorage.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 

@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Karpet merah: brainrot berjalan di belt, bisa dibeli; yang sudah dibeli bisa disalip 150%.
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

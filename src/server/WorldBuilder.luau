@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Bangun dunia prosedural: 4 base, karpet merah, 6 zona, 3 parit, arena telur bos.
 local WorldBuilder = {}
 

@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- HUD "CURI BRAINROT: BANJIR MIE AYAM".
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

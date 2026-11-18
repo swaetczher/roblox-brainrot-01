@@ -1,3 +1,4 @@
+// R3 rewrite terekam 2026-11-18.
 // Entri agen (Produksi, 18 Nov 2026): CURI BRAINROT: BANJIR MIE AYAM — game 3D steal-a-brainrot
 // Ditulis ulang penuh di sesi terekam R2 (recording 01a1ece8): 15 script Luau direvisi, AksiTelur kini terhubung ke BossEggSystem.
 // Indonesia: 12 karakter orisinal, 6 rarity, belt + base + steal + tsunami + bos telur + rebirth.

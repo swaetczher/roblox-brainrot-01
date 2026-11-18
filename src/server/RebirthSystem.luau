@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Rebirth 5 tingkat: reset uang + brainrot demi pengali permanen dan unlock.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")

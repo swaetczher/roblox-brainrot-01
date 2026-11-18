@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- SATU tempat state server: uang, slot base, kunci, rebirth, status ombak.
 local GameState = {}
 

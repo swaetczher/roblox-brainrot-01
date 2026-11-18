@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Base pemain + bot: beli, taruh di slot, kunci, income tiap detik, kirim HUD.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

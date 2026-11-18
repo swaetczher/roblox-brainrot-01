@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Bootstrap "CURI BRAINROT: BANJIR MIE AYAM": bangun dunia, nyalakan semua sistem.
 local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")

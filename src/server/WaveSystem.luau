@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Ancaman 2, banjir mie: sirene + hitung mundur, lalu ombak menyapu lintasan.
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")

@@ -1,3 +1,4 @@
+-- R3 rewrite terekam 2026-11-18.
 -- Data 12 karakter brainrot orisinal "CURI BRAINROT: BANJIR MIE AYAM".
 local CharacterData = {}
 
