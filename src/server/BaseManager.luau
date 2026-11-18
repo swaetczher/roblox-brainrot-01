@@ -24,9 +24,22 @@ local function slotKosong(data)
 	return nil
 end
 
+-- Hitung slot terisi dengan pairs, bukan ipairs: slot yang dicuri meninggalkan
+-- lubang nil di tengah tabel, dan ipairs berhenti di lubang pertama sehingga
+-- income + hitungan slot jadi kurang. pairs memindai semua indeks.
+function BaseManager.slotTerisi(data)
+	local terisi = 0
+	for _, slot in pairs(data.Slot) do
+		if slot then
+			terisi = terisi + 1
+		end
+	end
+	return terisi
+end
+
 local function hitungPerDetik(data)
 	local total = 0
-	for _, slot in ipairs(data.Slot) do
+	for _, slot in pairs(data.Slot) do
 		if slot then
 			local traits = {}
 			if slot.Trait then
@@ -80,7 +93,7 @@ end
 function BaseManager.lepasDariSlot(pemilik, model)
 	local data = GameState.Pemain[pemilik]
 	if data then
-		for i, slot in ipairs(data.Slot) do
+		for i, slot in pairs(data.Slot) do
 			if slot and slot.Model == model then
 				data.Slot[i] = nil
 				return true
@@ -88,7 +101,7 @@ function BaseManager.lepasDariSlot(pemilik, model)
 		end
 	end
 	for _, dataBot in pairs(GameState.Bot) do
-		for i, slot in ipairs(dataBot.Slot) do
+		for i, slot in pairs(dataBot.Slot) do
 			if slot and slot.Model == model then
 				dataBot.Slot[i] = nil
 				return true
@@ -100,6 +113,7 @@ end
 
 function BaseManager.buatDataPemain(player)
 	local data = GameState.dataBaru()
+	-- Base langsung terkunci saat join, supaya tidak langsung dijarah bot.
 	data.KunciSampai = tick() + GameState.durasiKunci(0)
 	GameState.Pemain[player] = data
 	player.CharacterAdded:Connect(function(character)
@@ -115,7 +129,7 @@ end
 function BaseManager.hapusDataPemain(player)
 	local data = GameState.Pemain[player]
 	if data then
-		for _, slot in ipairs(data.Slot) do
+		for _, slot in pairs(data.Slot) do
 			if slot and slot.Model then
 				slot.Model:Destroy()
 			end
@@ -131,13 +145,19 @@ function BaseManager.kunciBase(player)
 	end
 	local pesan = Remotes.ambil("BeriPesan")
 	if GameState.baseTerkunci(data) then
-		local sisa = math.floor(data.KunciSampai - tick())
-		pesan:FireClient(player, "Base masih terkunci " .. sisa .. " dtk lagi.")
+		pesan:FireClient(player, "Base masih terkunci " .. GameState.sisaKunci(data) .. " dtk lagi.")
 		return
 	end
 	data.KunciSampai = tick() + GameState.durasiKunci(data.Rebirth)
 	pesan:FireClient(player, "Base dikunci " .. GameState.durasiKunci(data.Rebirth) .. " dtk! Maling tidak bisa masuk.")
 end
+
+-- Peta nama bot -> kunci base di WorldBuilder.Info.Bases.
+local kunciBaseBot = {
+	["Bot Sari"] = "Bot1",
+	["Bot Budi"] = "Bot2",
+	["Bot Cici"] = "Bot3",
+}
 
 function BaseManager.mulai()
 	Remotes.ambil("AksiKunci").OnServerEvent:Connect(function(player)
@@ -150,31 +170,20 @@ function BaseManager.mulai()
 			for player, data in pairs(GameState.Pemain) do
 				local perDetik = hitungPerDetik(data)
 				data.Uang = data.Uang + perDetik
-				local terisi = 0
-				for _, slot in ipairs(data.Slot) do
-					if slot then
-						terisi = terisi + 1
-					end
-				end
-				local kunciSisa = 0
-				if GameState.baseTerkunci(data) then
-					kunciSisa = math.floor(data.KunciSampai - tick())
-				end
-				updateHUD:FireClient(player, data.Uang, perDetik, GameState.Ombak.Status, GameState.Ombak.Sisa, GameState.Ombak.Kecepatan, kunciSisa, data.Rebirth, terisi, data.SlotMaks)
+				local kunciSisa = GameState.sisaKunci(data)
+				updateHUD:FireClient(player, data.Uang, perDetik, GameState.Ombak.Status, GameState.Ombak.Sisa, GameState.Ombak.Kecepatan, kunciSisa, data.Rebirth, BaseManager.slotTerisi(data), data.SlotMaks)
 			end
+			-- Gerbang laser menutup (CanCollide) hanya saat base pemiliknya terkunci.
 			local info = WorldBuilder.Info
 			if info then
-				for player, data in pairs(GameState.Pemain) do
+				for _, data in pairs(GameState.Pemain) do
 					info.Bases.Pemain.Gerbang.CanCollide = GameState.baseTerkunci(data)
 				end
 				for namaBot, dataBot in pairs(GameState.Bot) do
-					local kunci = "Bot1"
-					if namaBot == "Bot Budi" then
-						kunci = "Bot2"
-					elseif namaBot == "Bot Cici" then
-						kunci = "Bot3"
+					local kunci = kunciBaseBot[namaBot]
+					if kunci and info.Bases[kunci] then
+						info.Bases[kunci].Gerbang.CanCollide = GameState.baseTerkunci(dataBot)
 					end
-					info.Bases[kunci].Gerbang.CanCollide = GameState.baseTerkunci(dataBot)
 				end
 			end
 		end

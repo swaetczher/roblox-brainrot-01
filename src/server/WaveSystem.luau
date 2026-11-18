@@ -1,4 +1,6 @@
 -- Ancaman 2, banjir mie: sirene + hitung mundur, lalu ombak menyapu lintasan.
+-- Selamat hanya di dalam base (radius 24) atau parit (radius 10); di luar itu
+-- bawaan jatuh dan pemain respawn di base.
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -6,7 +8,6 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Server = ServerScriptService:WaitForChild("Server")
 local GameState = require(Shared:WaitForChild("GameState"))
-local Economy = require(Shared:WaitForChild("Economy"))
 local WorldBuilder = require(Server:WaitForChild("WorldBuilder"))
 local StealSystem = require(Server:WaitForChild("StealSystem"))
 local Remotes = require(Server:WaitForChild("Remotes"))
@@ -15,11 +16,14 @@ local WaveSystem = {}
 
 local kecepatanNama = {"Lambat", "Sedang", "Cepat", "Kilat"}
 local durasiOmbak = { Lambat = 10, Sedang = 7, Cepat = 5, Kilat = 3 }
+local LANGKAH_OMBAK = 40
+local Z_OMBAK_AWAL = -180
+local Z_OMBAK_AKHIR = 180
 
 function WaveSystem.cekParitAman(posisi)
 	for _, parit in ipairs(WorldBuilder.Info.Parit) do
 		local jarak = (Vector3.new(posisi.X, 0, posisi.Z) - Vector3.new(parit.X, 0, parit.Z)).Magnitude
-		if jarak < 10 then
+		if jarak < GameState.Konfigurasi.JarakAmanParit then
 			return true
 		end
 	end
@@ -29,7 +33,7 @@ end
 function WaveSystem.cekDiBase(posisi)
 	for _, base in pairs(WorldBuilder.Info.Bases) do
 		local jarak = (Vector3.new(posisi.X, 0, posisi.Z) - Vector3.new(base.Posisi.X, 0, base.Posisi.Z)).Magnitude
-		if jarak < 24 then
+		if jarak < GameState.Konfigurasi.JarakAmanBase then
 			return true
 		end
 	end
@@ -56,30 +60,29 @@ function WaveSystem.luncurkanTsunami(kecepatan)
 	local ombak = Instance.new("Part")
 	ombak.Name = "OmbakMie"
 	ombak.Size = Vector3.new(320, 24, 12)
-	ombak.Position = Vector3.new(0, 12, -180)
+	ombak.Position = Vector3.new(0, 12, Z_OMBAK_AWAL)
 	ombak.Anchored = true
 	ombak.CanCollide = false
 	ombak.Transparency = 0.35
 	ombak.Color = Color3.fromRGB(255, 200, 80)
 	ombak.Material = Enum.Material.Neon
 	ombak.Parent = Workspace
-	local langkah = 40
-	for i = 1, langkah do
-		local z = -180 + (360 * i / langkah)
+	for i = 1, LANGKAH_OMBAK do
+		local z = Z_OMBAK_AWAL + ((Z_OMBAK_AKHIR - Z_OMBAK_AWAL) * i / LANGKAH_OMBAK)
 		ombak.Position = Vector3.new(0, 12, z)
 		GameState.Ombak.Z = z
 		WaveSystem.cekKorban(z)
-		task.wait(durasi / langkah)
+		task.wait(durasi / LANGKAH_OMBAK)
 	end
-	WaveSystem.cekKorban(180)
+	WaveSystem.cekKorban(Z_OMBAK_AKHIR)
 	ombak:Destroy()
-	GameState.Ombak.Z = -180
+	GameState.Ombak.Z = Z_OMBAK_AWAL
 end
 
 function WaveSystem.mulai()
 	task.spawn(function()
 		while true do
-			GameState.Ombak.Status = "Tenang"
+			GameState.resetOmbak()
 			for i = GameState.Konfigurasi.JedaOmbak, 1, -1 do
 				GameState.Ombak.Sisa = i
 				task.wait(1)

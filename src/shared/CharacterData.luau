@@ -1,5 +1,6 @@
 -- Data 12 karakter brainrot orisinal "CURI BRAINROT: BANJIR MIE AYAM".
 -- Harga dan $/detik ikut skala Steal a Brainrot; payback 25-333 detik.
+-- Rarity di-cache per nama supaya ambilDariRarity tidak memindai Daftar tiap spawn.
 local CharacterData = {}
 
 CharacterData.RarityUrutan = {"Common", "Rare", "Epic", "Legendary", "Mythic", "Secret"}
@@ -42,26 +43,35 @@ CharacterData.Daftar = {
 	{ Nama = "Raja Indomie Goreng Abadi", Rarity = "Secret", Harga = 1000000000, PerDetik = 10000000, Warna = Color3.fromRGB(220, 40, 40), Bentuk = "Tinggi" },
 }
 
-function CharacterData.ambilDariNama(nama)
-	for _, data in ipairs(CharacterData.Daftar) do
-		if data.Nama == nama then
-			return data
-		end
+-- Cache per rarity, dibangun sekali saat pertama dipakai.
+local perRarity = nil
+local function bangunCacheRarity()
+	if perRarity then
+		return
 	end
-	return nil
+	perRarity = {}
+	for _, data in ipairs(CharacterData.Daftar) do
+		perRarity[data.Rarity] = perRarity[data.Rarity] or {}
+		table.insert(perRarity[data.Rarity], data)
+	end
 end
 
 function CharacterData.ambilDariRarity(rarity)
-	local cocok = {}
-	for _, data in ipairs(CharacterData.Daftar) do
-		if data.Rarity == rarity then
-			table.insert(cocok, data)
-		end
-	end
-	if #cocok == 0 then
+	bangunCacheRarity()
+	local cocok = perRarity[rarity]
+	if not cocok or #cocok == 0 then
 		return nil
 	end
 	return cocok[math.random(1, #cocok)]
+end
+
+function CharacterData.jumlahPerRarity(rarity)
+	bangunCacheRarity()
+	local cocok = perRarity[rarity]
+	if not cocok then
+		return 0
+	end
+	return #cocok
 end
 
 function CharacterData.ambilAcak()
@@ -81,6 +91,8 @@ function CharacterData.ambilAcak()
 	end
 end
 
+-- Gulir 1-100 melawan peluang kumulatif; di luar total peluang = Normal.
+-- Total peluang mutasi 16/100, jadi 84% spawn tetap Normal.
 function CharacterData.ambilMutasiAcak()
 	local gulir = math.random(100)
 	local jumlah = 0
@@ -93,6 +105,7 @@ function CharacterData.ambilMutasiAcak()
 	return { Nama = "Normal", Pengali = 1 }
 end
 
+-- Total peluang trait 30/100; 70% spawn tanpa trait.
 function CharacterData.ambilTraitAcak()
 	local gulir = math.random(100)
 	local jumlah = 0

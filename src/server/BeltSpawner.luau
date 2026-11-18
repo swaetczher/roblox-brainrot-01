@@ -17,11 +17,20 @@ local BeltSpawner = {}
 local belt = {}
 local terakhirLegendary = 0
 local terakhirMythic = 0
+local BELT_MAKS = 12
+local JEDA_SPAWN = 5
+local JEDA_LEGENDARY = 300
+local JEDA_MYTHIC = 900
 
 function BeltSpawner.daftarBelt()
 	return belt
 end
 
+function BeltSpawner.jumlahBelt()
+	return #belt
+end
+
+-- Keluarkan entri dari daftar belt tanpa menghancurkan modelnya (dipakai bot + antar).
 function BeltSpawner.ambilDariBelt(entri)
 	for i, satu in ipairs(belt) do
 		if satu == entri then
@@ -34,13 +43,7 @@ function BeltSpawner.ambilDariBelt(entri)
 end
 
 function BeltSpawner.hapus(entri)
-	for i, satu in ipairs(belt) do
-		if satu == entri then
-			table.remove(belt, i)
-			break
-		end
-	end
-	entri.Hidup = false
+	BeltSpawner.ambilDariBelt(entri)
 	if entri.Model and entri.Model.Parent then
 		entri.Model:Destroy()
 	end
@@ -70,14 +73,15 @@ function BeltSpawner.beli(player, entri)
 		if entri.Pembeli == player then
 			return
 		end
-		local hargaSalip = math.floor(entri.Data.Harga * GameState.Konfigurasi.HargaCurian)
+		local hargaSalip = Economy.hargaSalip(entri.Data.Harga)
 		if data.Uang < hargaSalip then
 			pesan:FireClient(player, "Menyalip butuh " .. Economy.formatUang(hargaSalip) .. " (150% harga)!")
 			return
 		end
 		local pembeliLama = entri.Pembeli
-		local dataLama = GameState.Pemain[pembeliLama]
+		local dataLama = pembeliLama and GameState.Pemain[pembeliLama]
 		if dataLama then
+			-- Pembeli lama dibayar kembali harga penuh, selisih 50% hilang sebagai biaya salip.
 			dataLama.Uang = dataLama.Uang + entri.Data.Harga
 			pesan:FireClient(pembeliLama, entri.Data.Nama .. " disalip " .. player.Name .. "! Uangmu dikembalikan.")
 		end
@@ -107,12 +111,7 @@ function BeltSpawner.antarKeBase(entri)
 		if not entri.Hidup then
 			return
 		end
-		for i, satu in ipairs(belt) do
-			if satu == entri then
-				table.remove(belt, i)
-				break
-			end
-		end
+		BeltSpawner.ambilDariBelt(entri)
 		entri.Hidup = false
 		if entri.Pembeli and GameState.Pemain[entri.Pembeli] then
 			if not BaseManager.taruhDiBase(entri.Pembeli, entri) then
@@ -125,6 +124,9 @@ function BeltSpawner.antarKeBase(entri)
 end
 
 function BeltSpawner.spawnSatu(dataKhusus)
+	if #belt >= BELT_MAKS then
+		return nil
+	end
 	local data = dataKhusus or CharacterData.ambilAcak()
 	local mutasi = CharacterData.ambilMutasiAcak()
 	local trait = CharacterData.ambilTraitAcak()
@@ -158,20 +160,27 @@ function BeltSpawner.spawnSatu(dataKhusus)
 			BeltSpawner.hapus(entri)
 		end
 	end)
+	return entri
 end
 
 function BeltSpawner.mulai()
 	task.spawn(function()
 		while true do
-			task.wait(5)
+			task.wait(JEDA_SPAWN)
 			local sekarang = tick()
-			if sekarang - terakhirLegendary >= 300 then
+			-- Dua timer independen: Legendary 5 menit dan Mythic 15 menit tidak saling blokir.
+			local spawnKhusus = false
+			if sekarang - terakhirLegendary >= JEDA_LEGENDARY then
 				terakhirLegendary = sekarang
 				BeltSpawner.spawnSatu(CharacterData.ambilDariRarity("Legendary"))
-			elseif sekarang - terakhirMythic >= 900 then
+				spawnKhusus = true
+			end
+			if sekarang - terakhirMythic >= JEDA_MYTHIC then
 				terakhirMythic = sekarang
 				BeltSpawner.spawnSatu(CharacterData.ambilDariRarity("Mythic"))
-			else
+				spawnKhusus = true
+			end
+			if not spawnKhusus then
 				BeltSpawner.spawnSatu()
 			end
 		end

@@ -1,4 +1,5 @@
 -- Ancaman 1, maling: curi dari base tak terkunci, pikul lambat, tampar menjatuhkan.
+-- Pikul: WalkSpeed 16 -> 9, alias -43,75%. Tampar punya cooldown 2 dtk per pemain.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -12,6 +13,7 @@ local Remotes = require(Server:WaitForChild("Remotes"))
 local StealSystem = {}
 
 local bawaan = {}
+local terakhirTampar = {}
 
 local function aturJalan(player, cepat)
 	local character = player.Character
@@ -28,6 +30,11 @@ local function aturJalan(player, cepat)
 			humanoid.WalkSpeed = GameState.Konfigurasi.JalanMemikul
 		end
 	end
+end
+
+-- true kalau pemain sedang membawa sesuatu (brainrot curian atau telur bos).
+function StealSystem.sedangMembawa(player)
+	return bawaan[player] ~= nil
 end
 
 function StealSystem.mulaiBawa(player, model, jenis, asal, saatSampai, saatJatuh, entriData)
@@ -85,6 +92,7 @@ function StealSystem.jatuhkanBawaan(player)
 	if entri.SaatJatuh then
 		entri.SaatJatuh()
 	end
+	-- Setelah 15 dtk, curian yang masih tergeletak kembali ke base pemilik asal.
 	task.delay(15, function()
 		if entri.Model:GetAttribute("Jatuh") then
 			entri.Model:SetAttribute("Jatuh", false)
@@ -116,7 +124,19 @@ function StealSystem.daftarkanBrainrotBase(model, pemilik, entri)
 	if not klik then
 		return
 	end
+	-- SATU handler klik untuk dua kasus: curi dari base, atau pungut yang jatuh.
+	-- (Dua handler terpisah sebelumnya sama-sama jalan tiap klik dan rawan dobel.)
 	klik.MouseClick:Connect(function(player)
+		if model:GetAttribute("Jatuh") then
+			if GameState.Pemain[player] and GameState.Pemain[player].Membawa then
+				return
+			end
+			model:SetAttribute("Jatuh", false)
+			StealSystem.mulaiBawa(player, model, "Brainrot", nil, function()
+				BaseManager.taruhDiBase(player, entri)
+			end, nil, entri)
+			return
+		end
 		if not model:GetAttribute("DiBase") then
 			return
 		end
@@ -130,22 +150,14 @@ function StealSystem.daftarkanBrainrotBase(model, pemilik, entri)
 		end
 		StealSystem.curiBrainrot(player, model, pemilik, entri)
 	end)
-	klik.MouseClick:Connect(function(player)
-		if not model:GetAttribute("Jatuh") then
-			return
-		end
-		if GameState.Pemain[player] and GameState.Pemain[player].Membawa then
-			return
-		end
-		model:SetAttribute("Jatuh", false)
-		local asal = nil
-		StealSystem.mulaiBawa(player, model, "Brainrot", asal, function()
-			BaseManager.taruhDiBase(player, entri)
-		end, nil, entri)
-	end)
 end
 
 function StealSystem.tampar(player)
+	local sekarang = tick()
+	if terakhirTampar[player] and sekarang - terakhirTampar[player] < 2 then
+		return
+	end
+	terakhirTampar[player] = sekarang
 	local character = player.Character
 	local akar = character and character:FindFirstChild("HumanoidRootPart")
 	if not akar then
@@ -172,6 +184,7 @@ function StealSystem.mulai()
 		if bawaan[player] then
 			StealSystem.jatuhkanBawaan(player)
 		end
+		terakhirTampar[player] = nil
 	end)
 end
 

@@ -1,4 +1,5 @@
 -- HUD "CURI BRAINROT: BANJIR MIE AYAM": teks besar di tengah atas, jauh dari pojok kiri atas.
+-- Tombol diberi cooldown klik 0,5 dtk supaya satu klik tidak mengirim RemoteEvent berkali-kali.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
@@ -40,6 +41,7 @@ local function buatTombol(nama, ukuran, posisi, teks, warna)
 	return tombol
 end
 
+-- Semua label digeser ke tengah layar (X mulai 0.2 ke atas): tidak ada HUD di pojok kiri atas.
 local judul = buatLabel("Judul", UDim2.new(0.6, 0, 0.07, 0), UDim2.new(0.2, 0, 0.02, 0), "CURI BRAINROT: BANJIR MIE AYAM", Color3.fromRGB(255, 210, 40))
 local uang = buatLabel("Uang", UDim2.new(0.4, 0, 0.09, 0), UDim2.new(0.3, 0, 0.10, 0), "$100", Color3.fromRGB(120, 255, 120))
 local perDetik = buatLabel("PerDetik", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.20, 0), "+$0/dtk | 12 BRAINROT - 6 RARITY - 3 ANCAMAN", Color3.fromRGB(255, 255, 255))
@@ -51,11 +53,14 @@ local pesan = buatLabel("Pesan", UDim2.new(0.6, 0, 0.06, 0), UDim2.new(0.2, 0, 0
 local tombolKunci = buatTombol("TombolKunci", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.35, 0), "KUNCI BASE", Color3.fromRGB(200, 40, 40))
 local tombolRebirth = buatTombol("TombolRebirth", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.44, 0), "REBIRTH", Color3.fromRGB(140, 60, 220))
 local tombolTampar = buatTombol("TombolTampar", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.53, 0), "TAMPAR", Color3.fromRGB(220, 140, 40))
-local tombolTeleport = buatTombol("TombolTeleport", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.62, 0), "TELEPORT PULANG", Color3.fromRGB(40, 160, 220))
+local tombolTelur = buatTombol("TombolTelur", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.62, 0), "PECAHKAN TELUR BOS", Color3.fromRGB(255, 210, 40))
+local tombolTeleport = buatTombol("TombolTeleport", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.71, 0), "TELEPORT PULANG", Color3.fromRGB(40, 160, 220))
 tombolTeleport.Visible = false
 
 local function formatUang(nilai)
-	if nilai >= 1000000000 then
+	if nilai >= 1000000000000 then
+		return string.format("$%.2f T", nilai / 1000000000000)
+	elseif nilai >= 1000000000 then
 		return string.format("$%.2f M", nilai / 1000000000)
 	elseif nilai >= 1000000 then
 		return string.format("$%.2f jt", nilai / 1000000)
@@ -94,15 +99,21 @@ beriPesan.OnClientEvent:Connect(function(teks)
 	pesan.Text = teks
 end)
 
-tombolKunci.MouseButton1Click:Connect(function()
-	remotes:WaitForChild("AksiKunci"):FireServer()
-end)
-tombolRebirth.MouseButton1Click:Connect(function()
-	remotes:WaitForChild("AksiRebirth"):FireServer()
-end)
-tombolTampar.MouseButton1Click:Connect(function()
-	remotes:WaitForChild("AksiTampar"):FireServer()
-end)
-tombolTeleport.MouseButton1Click:Connect(function()
-	remotes:WaitForChild("AksiTeleport"):FireServer()
-end)
+-- Satu handler klik dengan cooldown: tombol tidak bisa di-spam.
+local terakhirKlik = 0
+local function hubungkanTombol(tombol, namaRemote)
+	tombol.MouseButton1Click:Connect(function()
+		local sekarang = tick()
+		if sekarang - terakhirKlik < 0.5 then
+			return
+		end
+		terakhirKlik = sekarang
+		remotes:WaitForChild(namaRemote):FireServer()
+	end)
+end
+
+hubungkanTombol(tombolKunci, "AksiKunci")
+hubungkanTombol(tombolRebirth, "AksiRebirth")
+hubungkanTombol(tombolTampar, "AksiTampar")
+hubungkanTombol(tombolTelur, "AksiTelur")
+hubungkanTombol(tombolTeleport, "AksiTeleport")

@@ -9,11 +9,14 @@ GameState.Konfigurasi = {
 	KunciPerRebirth = 10,
 	KunciPerisai = 120,
 	JalanNormal = 16,
+	-- Pikul: 16 -> 9, alias -43,75%.
 	JalanMemikul = 9,
 	JalanCoil = 20,
 	JedaOmbak = 50,
 	HitungMundurOmbak = 5,
 	HargaCurian = 1.5,
+	JarakAmanParit = 10,
+	JarakAmanBase = 24,
 }
 
 GameState.Pemain = {}
@@ -33,6 +36,12 @@ function GameState.dataBaru()
 end
 
 function GameState.pengaliRebirth(level)
+	if level < 0 then
+		return 1
+	end
+	if level > 5 then
+		return 6
+	end
 	return level + 1
 end
 
@@ -48,6 +57,20 @@ function GameState.baseTerkunci(data)
 		return false
 	end
 	return tick() < data.KunciSampai
+end
+
+-- Sisa detik kunci, 0 kalau tidak terkunci. Dipakai HUD dan pesan kunci.
+function GameState.sisaKunci(data)
+	if not GameState.baseTerkunci(data) then
+		return 0
+	end
+	return math.floor(data.KunciSampai - tick())
+end
+
+function GameState.resetOmbak()
+	GameState.Ombak.Status = "Tenang"
+	GameState.Ombak.Sisa = GameState.Konfigurasi.JedaOmbak
+	GameState.Ombak.Z = -180
 end
 
 return GameState

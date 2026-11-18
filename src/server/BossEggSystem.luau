@@ -1,4 +1,6 @@
 -- Ancaman 3, bos telur: pecahkan telur, bos bangun dan mengejar sampai base.
+-- RemoteEvent AksiTelur dipakai di sini: tombol HUD "PECAHKAN TELUR BOS" memanggil
+-- BossEggSystem.pecahkanTelur, dengan cek jarak (maks 40 stud dari arena).
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -16,6 +18,9 @@ local BossEggSystem = {}
 
 local telur = nil
 local bos = nil
+local JARAK_TELUR_MAKS = 40
+local KECEPATAN_BOS = 0.55
+local JEDA_TELUR_BARU = 30
 
 local function buatTelur()
 	local arena = WorldBuilder.Info.ArenaTelur
@@ -50,6 +55,17 @@ local function tidurkanBos()
 	end
 end
 
+-- Jarak pemain ke arena telur; dipakai untuk menolak AksiTelur dari jauh.
+function BossEggSystem.jarakKeArena(player)
+	local character = player.Character
+	local akar = character and character:FindFirstChild("HumanoidRootPart")
+	if not akar then
+		return math.huge
+	end
+	local arena = WorldBuilder.Info.ArenaTelur
+	return (Vector3.new(akar.Position.X, 0, akar.Position.Z) - Vector3.new(arena.X, 0, arena.Z)).Magnitude
+end
+
 function BossEggSystem.tangkapPemain(player)
 	if telur then
 		telur:PivotTo(CFrame.new(WorldBuilder.Info.ArenaTelur + Vector3.new(0, 5, 0)))
@@ -68,6 +84,10 @@ function BossEggSystem.pecahkanTelur(player)
 	end
 	local data = GameState.Pemain[player]
 	if not data then
+		return
+	end
+	if BossEggSystem.jarakKeArena(player) > JARAK_TELUR_MAKS then
+		Remotes.ambil("BeriPesan"):FireClient(player, "Terlalu jauh dari arena telur bos! Dekati dulu.")
 		return
 	end
 	if data.Membawa then
@@ -91,6 +111,10 @@ function BossEggSystem.pecahkanTelur(player)
 	end)
 	task.spawn(function()
 		while GameState.Bos.Bangun do
+			if not bos then
+				tidurkanBos()
+				break
+			end
 			local target = GameState.Bos.Mengejar
 			local character = target and target.Character
 			local akar = character and character:FindFirstChild("HumanoidRootPart")
@@ -105,7 +129,7 @@ function BossEggSystem.pecahkanTelur(player)
 				BossEggSystem.tangkapPemain(target)
 				break
 			end
-			local gerak = arah.Unit * 0.55
+			local gerak = arah.Unit * KECEPATAN_BOS
 			bos:PivotTo(CFrame.new(posisiBos + Vector3.new(gerak.X, 0, gerak.Z)))
 			task.wait(0.1)
 		end
@@ -117,6 +141,7 @@ function BossEggSystem.tetaskanTelur(player)
 	if not data then
 		return
 	end
+	-- 30% Secret, 70% Mythic: hadiah sepadan dengan risiko dikejar bos.
 	local gulir = math.random(100)
 	local rarity = "Mythic"
 	if gulir <= 30 then
@@ -135,7 +160,7 @@ function BossEggSystem.tetaskanTelur(player)
 	end
 	telur = nil
 	tidurkanBos()
-	task.delay(30, function()
+	task.delay(JEDA_TELUR_BARU, function()
 		if not telur then
 			buatTelur()
 		end
@@ -149,6 +174,10 @@ function BossEggSystem.mulai()
 	bos:SetAttribute("Tidur", true)
 	bos:PivotTo(CFrame.new(WorldBuilder.Info.ArenaTelur + Vector3.new(12, 2, 0)))
 	bos.Parent = Workspace
+	-- AksiTelur: tombol HUD memecahkan telur tanpa harus klik model telur.
+	Remotes.ambil("AksiTelur").OnServerEvent:Connect(function(player)
+		BossEggSystem.pecahkanTelur(player)
+	end)
 end
 
 return BossEggSystem

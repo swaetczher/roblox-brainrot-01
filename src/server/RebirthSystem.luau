@@ -18,6 +18,31 @@ RebirthSystem.Syarat = {
 	{ Uang = 5000000000, Butuh = {"Mie Ayam Tsunami Raksasa"}, Buka = "Teleport Pulang + gelar Raja Indomie" },
 }
 
+-- Kembalikan daftar nama brainrot yang masih kurang untuk rebirth berikutnya.
+function RebirthSystem.yangKurang(player)
+	local data = GameState.Pemain[player]
+	if not data then
+		return nil
+	end
+	local syarat = RebirthSystem.Syarat[data.Rebirth + 1]
+	if not syarat then
+		return nil
+	end
+	local kurang = {}
+	for _, nama in ipairs(syarat.Butuh) do
+		local punya = false
+		for _, slot in pairs(data.Slot) do
+			if slot and slot.Data.Nama == nama then
+				punya = true
+			end
+		end
+		if not punya then
+			table.insert(kurang, nama)
+		end
+	end
+	return kurang
+end
+
 function RebirthSystem.cekSyaratRebirth(player)
 	local data = GameState.Pemain[player]
 	if not data then
@@ -31,16 +56,9 @@ function RebirthSystem.cekSyaratRebirth(player)
 	if data.Uang < syarat.Uang then
 		return false, "Rebirth " .. level .. " butuh " .. Economy.formatUang(syarat.Uang) .. "."
 	end
-	for _, nama in ipairs(syarat.Butuh) do
-		local punya = false
-		for _, slot in ipairs(data.Slot) do
-			if slot and slot.Data.Nama == nama then
-				punya = true
-			end
-		end
-		if not punya then
-			return false, "Rebirth " .. level .. " butuh " .. nama .. " di base!"
-		end
+	local kurang = RebirthSystem.yangKurang(player)
+	if kurang and #kurang > 0 then
+		return false, "Rebirth " .. level .. " butuh di base: " .. table.concat(kurang, ", ") .. "!"
 	end
 	return true, syarat
 end
@@ -53,7 +71,7 @@ function RebirthSystem.lakukanRebirth(player)
 		return
 	end
 	local data = GameState.Pemain[player]
-	for _, slot in ipairs(data.Slot) do
+	for _, slot in pairs(data.Slot) do
 		if slot and slot.Model then
 			slot.Model:Destroy()
 		end

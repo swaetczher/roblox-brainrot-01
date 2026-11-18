@@ -1,9 +1,12 @@
 -- Bot pencuri: beli di belt, bawa pulang, dan curi dari base pemain yang tak terkunci.
+-- Bot memakai ekonomi yang sama dengan pemain: uang awal 100, income dari slot
+-- sendiri tiap detik, dan beli di belt memotong uang bot.
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Server = ServerScriptService:WaitForChild("Server")
+local Economy = require(Shared:WaitForChild("Economy"))
 local GameState = require(Shared:WaitForChild("GameState"))
 local WorldBuilder = require(Server:WaitForChild("WorldBuilder"))
 local CharacterFactory = require(Server:WaitForChild("CharacterFactory"))
@@ -33,6 +36,25 @@ local function pulang(bot)
 	if bot.Membawa then
 		BotPemain.simpanBawaan(bot)
 	end
+end
+
+-- Income bot: sama rumusnya dengan pemain, dikumpulkan tiap giliran jalan.
+function BotPemain.kumpulkanIncome(bot)
+	local data = GameState.Bot[bot.Nama]
+	if not data then
+		return
+	end
+	local total = 0
+	for _, slot in pairs(data.Slot) do
+		if slot then
+			local traits = {}
+			if slot.Trait then
+				table.insert(traits, slot.Trait)
+			end
+			total = total + Economy.hitungIncome(slot.Data, slot.Mutasi.Pengali, traits, GameState.pengaliRebirth(data.Rebirth))
+		end
+	end
+	data.Uang = data.Uang + total
 end
 
 function BotPemain.simpanBawaan(bot)
@@ -85,12 +107,20 @@ function BotPemain.bergerakKe(bot, tujuan)
 end
 
 function BotPemain.beliDiBelt(bot)
+	local data = GameState.Bot[bot.Nama]
+	if not data then
+		return
+	end
 	local daftar = BeltSpawner.daftarBelt()
 	if #daftar == 0 then
 		return
 	end
 	local entri = daftar[math.random(1, #daftar)]
 	if not entri.Model.Parent then
+		return
+	end
+	-- Bot hanya mengejar yang mampu dibeli; kalau tidak mampu, tunggu giliran berikut.
+	if data.Uang < entri.Data.Harga then
 		return
 	end
 	local posisi = entri.Model:GetPivot().Position
@@ -100,22 +130,37 @@ function BotPemain.beliDiBelt(bot)
 	if not entri.Hidup or not entri.Model.Parent then
 		return
 	end
+	data.Uang = data.Uang - entri.Data.Harga
 	BeltSpawner.ambilDariBelt(entri)
 	bot.Membawa = { Model = entri.Model, Data = entri.Data, Mutasi = entri.Mutasi, Trait = entri.Trait, AsalPemain = nil }
 	BotPemain.bergerakKe(bot, bot.Base.Posisi)
 	BotPemain.simpanBawaan(bot)
 end
 
+-- Bot mencuri slot TERMHAL (income tertinggi), bukan slot pertama di tabel.
+function BotPemain.pilihSlotTermahal(data)
+	local terbaik = nil
+	local incomeTerbaik = -1
+	for _, satu in pairs(data.Slot) do
+		if satu then
+			local traits = {}
+			if satu.Trait then
+				table.insert(traits, satu.Trait)
+			end
+			local income = Economy.hitungIncome(satu.Data, satu.Mutasi.Pengali, traits, 1)
+			if income > incomeTerbaik then
+				incomeTerbaik = income
+				terbaik = satu
+			end
+		end
+	end
+	return terbaik
+end
+
 function BotPemain.curiDariPemain(bot)
 	for player, data in pairs(GameState.Pemain) do
 		if not GameState.baseTerkunci(data) then
-			local slot = nil
-			for _, satu in ipairs(data.Slot) do
-				if satu then
-					slot = satu
-					break
-				end
-			end
+			local slot = BotPemain.pilihSlotTermahal(data)
 			if slot then
 				local basePemain = WorldBuilder.Info.Bases.Pemain
 				if not BotPemain.bergerakKe(bot, basePemain.Posisi) then
@@ -139,6 +184,7 @@ end
 function BotPemain.jalankanBot(bot)
 	while true do
 		task.wait(math.random(4, 8))
+		BotPemain.kumpulkanIncome(bot)
 		if math.random(100) <= 60 then
 			BotPemain.beliDiBelt(bot)
 		else

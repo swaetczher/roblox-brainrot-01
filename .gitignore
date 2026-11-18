@@ -1,2 +1,4 @@
 # artefak uji main.ts lokal (ditulis ulang Produksi saat recording jalan)
 out/
+# log lokal & file sementara
+*.log
