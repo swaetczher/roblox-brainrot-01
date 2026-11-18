@@ -11,8 +11,6 @@ local Remotes = require(Server:WaitForChild("Remotes"))
 
 local BaseManager = {}
 
--- Hook dari StealSystem (diisi init, supaya tidak ada require melingkar):
--- BaseManager.SaatTaruh(model, pemilik, entri)
 BaseManager.SaatTaruh = nil
 
 local function slotKosong(data)
@@ -24,9 +22,6 @@ local function slotKosong(data)
 	return nil
 end
 
--- Hitung slot terisi dengan pairs, bukan ipairs: slot yang dicuri meninggalkan
--- lubang nil di tengah tabel, dan ipairs berhenti di lubang pertama sehingga
--- income + hitungan slot jadi kurang. pairs memindai semua indeks.
 function BaseManager.slotTerisi(data)
 	local terisi = 0
 	for _, slot in pairs(data.Slot) do
@@ -113,7 +108,6 @@ end
 
 function BaseManager.buatDataPemain(player)
 	local data = GameState.dataBaru()
-	-- Base langsung terkunci saat join, supaya tidak langsung dijarah bot.
 	data.KunciSampai = tick() + GameState.durasiKunci(0)
 	GameState.Pemain[player] = data
 	player.CharacterAdded:Connect(function(character)
@@ -152,7 +146,6 @@ function BaseManager.kunciBase(player)
 	pesan:FireClient(player, "Base dikunci " .. GameState.durasiKunci(data.Rebirth) .. " dtk! Maling tidak bisa masuk.")
 end
 
--- Peta nama bot -> kunci base di WorldBuilder.Info.Bases.
 local kunciBaseBot = {
 	["Bot Sari"] = "Bot1",
 	["Bot Budi"] = "Bot2",
@@ -173,7 +166,6 @@ function BaseManager.mulai()
 				local kunciSisa = GameState.sisaKunci(data)
 				updateHUD:FireClient(player, data.Uang, perDetik, GameState.Ombak.Status, GameState.Ombak.Sisa, GameState.Ombak.Kecepatan, kunciSisa, data.Rebirth, BaseManager.slotTerisi(data), data.SlotMaks)
 			end
-			-- Gerbang laser menutup (CanCollide) hanya saat base pemiliknya terkunci.
 			local info = WorldBuilder.Info
 			if info then
 				for _, data in pairs(GameState.Pemain) do

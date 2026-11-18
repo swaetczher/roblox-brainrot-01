@@ -31,7 +31,6 @@ function CharacterFactory.buatBrainrot(data, mutasi, trait, skala)
 	local model = Instance.new("Model")
 	model.Name = data.Nama
 
-	-- Semua offset Y dikali skala, supaya bos skala 3 tidak punya kepala menempel badan.
 	local badan = buatPart("Badan", Vector3.new(4, 3, 3) * skala, Vector3.new(0, 2, 0) * skala, data.Warna, model)
 	if data.Bentuk == "Bulat" then
 		badan.Shape = Enum.PartType.Ball

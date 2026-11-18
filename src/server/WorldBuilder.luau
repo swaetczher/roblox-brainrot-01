@@ -1,5 +1,4 @@
 -- Bangun dunia prosedural: 4 base, karpet merah, 6 zona, 3 parit, arena telur bos.
--- Posisi semua elemen ditulis sebagai konstanta bernama supaya mudah dicek di peta.
 local WorldBuilder = {}
 
 WorldBuilder.Info = nil
@@ -42,7 +41,6 @@ local function buatBase(folder, kunci, tengah, warna, namaTampil)
 	local base = {}
 	base.Posisi = tengah
 	base.SlotPos = {}
-	-- 3 baris x 4 kolom = 12 posisi slot, cukup untuk SlotMaks tertinggi (8 + 4).
 	for baris = 1, 3 do
 		for kolom = 1, 4 do
 			table.insert(base.SlotPos, tengah + Vector3.new(-15 + (kolom - 1) * 10, 2, -12 + (baris - 1) * 10))
@@ -69,13 +67,10 @@ function WorldBuilder.bangun()
 	folder.Name = "Dunia"
 	folder.Parent = Workspace
 
-	-- Karpet merah: jalur belt dari ujung jauh (Secret, Z -114) ke base pemain (Z +114).
 	for i = 0, JUMLAH_KARPET - 1 do
 		buatPart("Karpet" .. i, Vector3.new(14, 0.5, 12), Vector3.new(0, 0.25, Z_KARPET_AWAL + i * PANJANG_KARPET), Color3.fromRGB(200, 30, 40), folder)
 	end
 
-	-- 6 zona rarity di sisi belt: makin jauh dari base, makin langka.
-	-- Zona Z positif di kanan belt (X +30), zona Z negatif di kiri (X -30).
 	local zona = {
 		{ Nama = "ZONA Common", Z = 100, Warna = Color3.fromRGB(175, 175, 175) },
 		{ Nama = "ZONA Rare", Z = 60, Warna = Color3.fromRGB(80, 200, 90) },
@@ -93,7 +88,6 @@ function WorldBuilder.bangun()
 		buatLabel(pad, satu.Nama, Color3.fromRGB(255, 255, 255))
 	end
 
-	-- 3 parit aman dari banjir mie (radius aman 10 stud, lihat WaveSystem.cekParitAman).
 	local parit = {
 		Vector3.new(-42, 0, -40),
 		Vector3.new(42, 0, 40),
@@ -104,20 +98,17 @@ function WorldBuilder.bangun()
 		buatLabel(pad, "PARIT AMAN", Color3.fromRGB(255, 255, 255))
 	end
 
-	-- Arena telur bos di ujung jauh.
 	local arenaPos = Vector3.new(0, 0, -170)
 	buatPart("LantaiArena", Vector3.new(44, 1, 44), arenaPos + Vector3.new(0, 0.5, 0), Color3.fromRGB(120, 90, 60), folder)
 	local tanda = buatPart("TandaArena", Vector3.new(20, 0.5, 6), arenaPos + Vector3.new(0, 1, 18), Color3.fromRGB(255, 210, 40), folder)
 	buatLabel(tanda, "ARENA TELUR BOS", Color3.fromRGB(255, 255, 255))
 
-	-- 4 base: 1 pemain + 3 bot.
 	local bases = {}
 	bases.Pemain = buatBase(folder, "Pemain", Vector3.new(0, 0, 150), Color3.fromRGB(70, 130, 255), "BASE KAMU")
 	bases.Bot1 = buatBase(folder, "Bot1", Vector3.new(-150, 0, 150), Color3.fromRGB(255, 120, 180), "BASE BOT SARI")
 	bases.Bot2 = buatBase(folder, "Bot2", Vector3.new(150, 0, 150), Color3.fromRGB(80, 200, 255), "BASE BOT BUDI")
 	bases.Bot3 = buatBase(folder, "Bot3", Vector3.new(-150, 0, -150), Color3.fromRGB(140, 255, 140), "BASE BOT CICI")
 
-	-- Spawn pemain di base sendiri.
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "SpawnPemain"
 	spawn.Size = Vector3.new(10, 1, 10)
@@ -126,8 +117,6 @@ function WorldBuilder.bangun()
 	spawn.AllowTeamChangeOnTouch = false
 	spawn.Parent = folder
 
-	-- Pohon dekorasi di tepi arena (posisi deterministik, tanpa randomseed).
-	-- Dijaga keluar dari koridor belt (|X| <= 60) dan area base (|Z| <= 130).
 	for i = 1, 24 do
 		local x = ((i * 137) % 460) - 230
 		local z = ((i * 211) % 420) - 210

@@ -1,5 +1,4 @@
--- HUD "CURI BRAINROT: BANJIR MIE AYAM": teks besar di tengah atas, jauh dari pojok kiri atas.
--- Tombol diberi cooldown klik 0,5 dtk supaya satu klik tidak mengirim RemoteEvent berkali-kali.
+-- HUD "CURI BRAINROT: BANJIR MIE AYAM".
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
@@ -41,7 +40,6 @@ local function buatTombol(nama, ukuran, posisi, teks, warna)
 	return tombol
 end
 
--- Semua label digeser ke tengah layar (X mulai 0.2 ke atas): tidak ada HUD di pojok kiri atas.
 local judul = buatLabel("Judul", UDim2.new(0.6, 0, 0.07, 0), UDim2.new(0.2, 0, 0.02, 0), "CURI BRAINROT: BANJIR MIE AYAM", Color3.fromRGB(255, 210, 40))
 local uang = buatLabel("Uang", UDim2.new(0.4, 0, 0.09, 0), UDim2.new(0.3, 0, 0.10, 0), "$100", Color3.fromRGB(120, 255, 120))
 local perDetik = buatLabel("PerDetik", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.20, 0), "+$0/dtk | 12 BRAINROT - 6 RARITY - 3 ANCAMAN", Color3.fromRGB(255, 255, 255))
@@ -99,7 +97,6 @@ beriPesan.OnClientEvent:Connect(function(teks)
 	pesan.Text = teks
 end)
 
--- Satu handler klik dengan cooldown: tombol tidak bisa di-spam.
 local terakhirKlik = 0
 local function hubungkanTombol(tombol, namaRemote)
 	tombol.MouseButton1Click:Connect(function()

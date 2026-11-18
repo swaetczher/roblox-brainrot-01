@@ -1,6 +1,4 @@
 -- Ancaman 2, banjir mie: sirene + hitung mundur, lalu ombak menyapu lintasan.
--- Selamat hanya di dalam base (radius 24) atau parit (radius 10); di luar itu
--- bawaan jatuh dan pemain respawn di base.
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

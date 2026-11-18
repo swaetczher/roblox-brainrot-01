@@ -1,6 +1,4 @@
 -- RemoteEvent client-server: dibuat sekali di ReplicatedStorage.
--- AksiTelur dipakai BossEggSystem.mulai (tombol HUD "PECAHKAN TELUR BOS");
--- semua RemoteEvent di daftar ini punya pengirim atau penerima di kode.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Remotes = {}
@@ -20,7 +18,6 @@ function Remotes.ambil(namaRemote)
 	return folder:WaitForChild(namaRemote)
 end
 
--- Daftar nama RemoteEvent, untuk debug dan cek kelengkapan di init.
 function Remotes.daftarNama()
 	return daftar
 end

@@ -18,9 +18,6 @@ function Economy.formatUang(nilai)
 	end
 end
 
--- Rumus komunitas terverifikasi: base x (mutasi + semua trait) x pengali rebirth.
--- Trait bersifat ADITIF terhadap pengali, bukan pengali berlapis.
--- daftarTrait boleh kosong/nil; pengaliRebirth dijepit minimal 1.
 function Economy.hitungIncome(data, pengaliMutasi, daftarTrait, pengaliRebirth)
 	local jumlahTrait = 0
 	if daftarTrait then
@@ -37,7 +34,6 @@ function Economy.hitungIncome(data, pengaliMutasi, daftarTrait, pengaliRebirth)
 	return data.PerDetik * (pengaliMutasi + jumlahTrait) * rebirth
 end
 
--- Harga salip di belt: 150% harga asli, dibulatkan ke bawah.
 function Economy.hargaSalip(harga)
 	return math.floor(harga * 1.5)
 end

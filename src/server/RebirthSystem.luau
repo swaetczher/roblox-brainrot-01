@@ -18,7 +18,6 @@ RebirthSystem.Syarat = {
 	{ Uang = 5000000000, Butuh = {"Mie Ayam Tsunami Raksasa"}, Buka = "Teleport Pulang + gelar Raja Indomie" },
 }
 
--- Kembalikan daftar nama brainrot yang masih kurang untuk rebirth berikutnya.
 function RebirthSystem.yangKurang(player)
 	local data = GameState.Pemain[player]
 	if not data then

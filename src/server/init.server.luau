@@ -1,7 +1,4 @@
 -- Bootstrap "CURI BRAINROT: BANJIR MIE AYAM": bangun dunia, nyalakan semua sistem.
--- Urutan penting: WorldBuilder.bangun dulu (semua sistem membaca WorldBuilder.Info),
--- lalu BaseManager.SaatTaruh dihubungkan ke StealSystem.daftarkanBrainrotBase
--- sebelum sistem mana pun menaruh brainrot di base.
 local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
 local Server = ServerScriptService:WaitForChild("Server")

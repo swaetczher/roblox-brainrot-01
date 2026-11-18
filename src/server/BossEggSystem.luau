@@ -1,6 +1,4 @@
 -- Ancaman 3, bos telur: pecahkan telur, bos bangun dan mengejar sampai base.
--- RemoteEvent AksiTelur dipakai di sini: tombol HUD "PECAHKAN TELUR BOS" memanggil
--- BossEggSystem.pecahkanTelur, dengan cek jarak (maks 40 stud dari arena).
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -55,7 +53,6 @@ local function tidurkanBos()
 	end
 end
 
--- Jarak pemain ke arena telur; dipakai untuk menolak AksiTelur dari jauh.
 function BossEggSystem.jarakKeArena(player)
 	local character = player.Character
 	local akar = character and character:FindFirstChild("HumanoidRootPart")
@@ -141,7 +138,6 @@ function BossEggSystem.tetaskanTelur(player)
 	if not data then
 		return
 	end
-	-- 30% Secret, 70% Mythic: hadiah sepadan dengan risiko dikejar bos.
 	local gulir = math.random(100)
 	local rarity = "Mythic"
 	if gulir <= 30 then
@@ -174,7 +170,6 @@ function BossEggSystem.mulai()
 	bos:SetAttribute("Tidur", true)
 	bos:PivotTo(CFrame.new(WorldBuilder.Info.ArenaTelur + Vector3.new(12, 2, 0)))
 	bos.Parent = Workspace
-	-- AksiTelur: tombol HUD memecahkan telur tanpa harus klik model telur.
 	Remotes.ambil("AksiTelur").OnServerEvent:Connect(function(player)
 		BossEggSystem.pecahkanTelur(player)
 	end)

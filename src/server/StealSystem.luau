@@ -1,5 +1,4 @@
 -- Ancaman 1, maling: curi dari base tak terkunci, pikul lambat, tampar menjatuhkan.
--- Pikul: WalkSpeed 16 -> 9, alias -43,75%. Tampar punya cooldown 2 dtk per pemain.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -32,7 +31,6 @@ local function aturJalan(player, cepat)
 	end
 end
 
--- true kalau pemain sedang membawa sesuatu (brainrot curian atau telur bos).
 function StealSystem.sedangMembawa(player)
 	return bawaan[player] ~= nil
 end
@@ -92,7 +90,6 @@ function StealSystem.jatuhkanBawaan(player)
 	if entri.SaatJatuh then
 		entri.SaatJatuh()
 	end
-	-- Setelah 15 dtk, curian yang masih tergeletak kembali ke base pemilik asal.
 	task.delay(15, function()
 		if entri.Model:GetAttribute("Jatuh") then
 			entri.Model:SetAttribute("Jatuh", false)
@@ -124,8 +121,6 @@ function StealSystem.daftarkanBrainrotBase(model, pemilik, entri)
 	if not klik then
 		return
 	end
-	-- SATU handler klik untuk dua kasus: curi dari base, atau pungut yang jatuh.
-	-- (Dua handler terpisah sebelumnya sama-sama jalan tiap klik dan rawan dobel.)
 	klik.MouseClick:Connect(function(player)
 		if model:GetAttribute("Jatuh") then
 			if GameState.Pemain[player] and GameState.Pemain[player].Membawa then

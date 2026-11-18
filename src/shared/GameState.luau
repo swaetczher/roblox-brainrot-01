@@ -9,7 +9,6 @@ GameState.Konfigurasi = {
 	KunciPerRebirth = 10,
 	KunciPerisai = 120,
 	JalanNormal = 16,
-	-- Pikul: 16 -> 9, alias -43,75%.
 	JalanMemikul = 9,
 	JalanCoil = 20,
 	JedaOmbak = 50,
@@ -59,7 +58,6 @@ function GameState.baseTerkunci(data)
 	return tick() < data.KunciSampai
 end
 
--- Sisa detik kunci, 0 kalau tidak terkunci. Dipakai HUD dan pesan kunci.
 function GameState.sisaKunci(data)
 	if not GameState.baseTerkunci(data) then
 		return 0

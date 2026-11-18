@@ -30,7 +30,6 @@ function BeltSpawner.jumlahBelt()
 	return #belt
 end
 
--- Keluarkan entri dari daftar belt tanpa menghancurkan modelnya (dipakai bot + antar).
 function BeltSpawner.ambilDariBelt(entri)
 	for i, satu in ipairs(belt) do
 		if satu == entri then
@@ -81,7 +80,6 @@ function BeltSpawner.beli(player, entri)
 		local pembeliLama = entri.Pembeli
 		local dataLama = pembeliLama and GameState.Pemain[pembeliLama]
 		if dataLama then
-			-- Pembeli lama dibayar kembali harga penuh, selisih 50% hilang sebagai biaya salip.
 			dataLama.Uang = dataLama.Uang + entri.Data.Harga
 			pesan:FireClient(pembeliLama, entri.Data.Nama .. " disalip " .. player.Name .. "! Uangmu dikembalikan.")
 		end
@@ -168,7 +166,6 @@ function BeltSpawner.mulai()
 		while true do
 			task.wait(JEDA_SPAWN)
 			local sekarang = tick()
-			-- Dua timer independen: Legendary 5 menit dan Mythic 15 menit tidak saling blokir.
 			local spawnKhusus = false
 			if sekarang - terakhirLegendary >= JEDA_LEGENDARY then
 				terakhirLegendary = sekarang

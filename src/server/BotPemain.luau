@@ -1,6 +1,4 @@
 -- Bot pencuri: beli di belt, bawa pulang, dan curi dari base pemain yang tak terkunci.
--- Bot memakai ekonomi yang sama dengan pemain: uang awal 100, income dari slot
--- sendiri tiap detik, dan beli di belt memotong uang bot.
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
@@ -38,7 +36,6 @@ local function pulang(bot)
 	end
 end
 
--- Income bot: sama rumusnya dengan pemain, dikumpulkan tiap giliran jalan.
 function BotPemain.kumpulkanIncome(bot)
 	local data = GameState.Bot[bot.Nama]
 	if not data then
@@ -119,7 +116,6 @@ function BotPemain.beliDiBelt(bot)
 	if not entri.Model.Parent then
 		return
 	end
-	-- Bot hanya mengejar yang mampu dibeli; kalau tidak mampu, tunggu giliran berikut.
 	if data.Uang < entri.Data.Harga then
 		return
 	end
@@ -137,7 +133,6 @@ function BotPemain.beliDiBelt(bot)
 	BotPemain.simpanBawaan(bot)
 end
 
--- Bot mencuri slot TERMHAL (income tertinggi), bukan slot pertama di tabel.
 function BotPemain.pilihSlotTermahal(data)
 	local terbaik = nil
 	local incomeTerbaik = -1
