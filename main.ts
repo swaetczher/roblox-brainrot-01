@@ -1,3 +1,5 @@
+// Entri agen (Produksi, 18 Nov 2026): CURI BRAINROT: BANJIR MIE AYAM — game 3D steal-a-brainrot
+// Indonesia: 12 karakter orisinal, 6 rarity, belt + base + steal + tsunami + bos telur + rebirth.
 // A working roblox-brainrot-01 entry (Node 22, standard library only): the game is this directory's Rojo
 // project, built into game.rbxl with `rojo build default.project.json --output game.rbxl`, and the program
 // hands it in. It copies game.rbxl, src/, screenshots/ and PLAY.json from beside this file to /output and

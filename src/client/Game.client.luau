@@ -1,88 +1,108 @@
--- A square that moves with the arrow keys inside a grey box.
-
+-- HUD "CURI BRAINROT: BANJIR MIE AYAM": teks besar di tengah atas, jauh dari pojok kiri atas.
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
-
-local ARENA_WIDTH = 640
-local ARENA_HEIGHT = 480
-local SQUARE_SIZE = 48
-local SPEED = 320 -- pixels per second
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local updateHUD = remotes:WaitForChild("UpdateHUD")
+local beriPesan = remotes:WaitForChild("BeriPesan")
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "GameGui"
+gui.Name = "BrainrotHUD"
 gui.ResetOnSpawn = false
-gui.IgnoreGuiInset = true
-
-local background = Instance.new("Frame")
-background.Name = "Background"
-background.Size = UDim2.fromScale(1, 1)
-background.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-background.BorderSizePixel = 0
-background.Parent = gui
-
-local title = Instance.new("TextLabel")
-title.Name = "Hint"
-title.AnchorPoint = Vector2.new(0.5, 0)
-title.Position = UDim2.new(0.5, 0, 0.5, -ARENA_HEIGHT / 2 - 56)
-title.Size = UDim2.fromOffset(ARENA_WIDTH, 40)
-title.BackgroundTransparency = 1
-title.Text = "Use the arrow keys to move the square"
-title.TextColor3 = Color3.fromRGB(230, 230, 230)
-title.TextSize = 24
-title.Font = Enum.Font.SourceSans
-title.Parent = background
-
-local arena = Instance.new("Frame")
-arena.Name = "Arena"
-arena.AnchorPoint = Vector2.new(0.5, 0.5)
-arena.Position = UDim2.fromScale(0.5, 0.5)
-arena.Size = UDim2.fromOffset(ARENA_WIDTH, ARENA_HEIGHT)
-arena.BackgroundColor3 = Color3.fromRGB(110, 110, 110)
-arena.BorderColor3 = Color3.fromRGB(30, 30, 30)
-arena.BorderSizePixel = 2
-arena.Parent = background
-
-local square = Instance.new("Frame")
-square.Name = "Square"
-square.Size = UDim2.fromOffset(SQUARE_SIZE, SQUARE_SIZE)
-square.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-square.BorderColor3 = Color3.fromRGB(30, 30, 30)
-square.BorderSizePixel = 2
-square.Parent = arena
-
--- The square's top-left corner inside the arena, starting in the middle.
-local x = (ARENA_WIDTH - SQUARE_SIZE) / 2
-local y = (ARENA_HEIGHT - SQUARE_SIZE) / 2
-
-local function place()
-	square.Position = UDim2.fromOffset(math.floor(x + 0.5), math.floor(y + 0.5))
-end
-
-place()
 gui.Parent = player:WaitForChild("PlayerGui")
 
-RunService.RenderStepped:Connect(function(dt)
-	local dx = 0
-	local dy = 0
-	if UserInputService:IsKeyDown(Enum.KeyCode.Left) then
-		dx -= 1
+local function buatLabel(nama, ukuran, posisi, teks, warna)
+	local label = Instance.new("TextLabel")
+	label.Name = nama
+	label.Size = ukuran
+	label.Position = posisi
+	label.BackgroundTransparency = 0.4
+	label.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+	label.TextColor3 = warna or Color3.fromRGB(255, 255, 255)
+	label.Font = Enum.Font.GothamBold
+	label.TextScaled = true
+	label.Text = teks
+	label.Parent = gui
+	return label
+end
+
+local function buatTombol(nama, ukuran, posisi, teks, warna)
+	local tombol = Instance.new("TextButton")
+	tombol.Name = nama
+	tombol.Size = ukuran
+	tombol.Position = posisi
+	tombol.BackgroundColor3 = warna
+	tombol.TextColor3 = Color3.fromRGB(255, 255, 255)
+	tombol.Font = Enum.Font.GothamBold
+	tombol.TextScaled = true
+	tombol.Text = teks
+	tombol.Parent = gui
+	return tombol
+end
+
+local judul = buatLabel("Judul", UDim2.new(0.6, 0, 0.07, 0), UDim2.new(0.2, 0, 0.02, 0), "CURI BRAINROT: BANJIR MIE AYAM", Color3.fromRGB(255, 210, 40))
+local uang = buatLabel("Uang", UDim2.new(0.4, 0, 0.09, 0), UDim2.new(0.3, 0, 0.10, 0), "$100", Color3.fromRGB(120, 255, 120))
+local perDetik = buatLabel("PerDetik", UDim2.new(0.5, 0, 0.05, 0), UDim2.new(0.25, 0, 0.20, 0), "+$0/dtk | 12 BRAINROT - 6 RARITY - 3 ANCAMAN", Color3.fromRGB(255, 255, 255))
+local ombak = buatLabel("Ombak", UDim2.new(0.5, 0, 0.06, 0), UDim2.new(0.25, 0, 0.26, 0), "BANJIR MIE: 50 dtk - Tenang", Color3.fromRGB(255, 200, 80))
+local hint = buatLabel("Hint", UDim2.new(0.56, 0, 0.05, 0), UDim2.new(0.22, 0, 0.33, 0), "Klik brainrot di karpet merah untuk BELI", Color3.fromRGB(200, 220, 255))
+local slot = buatLabel("Slot", UDim2.new(0.3, 0, 0.05, 0), UDim2.new(0.02, 0, 0.85, 0), "Base: 0/8 brainrot", Color3.fromRGB(255, 255, 255))
+local pesan = buatLabel("Pesan", UDim2.new(0.6, 0, 0.06, 0), UDim2.new(0.2, 0, 0.86, 0), "Selamat datang! Beli brainrot pertamamu.", Color3.fromRGB(255, 255, 255))
+
+local tombolKunci = buatTombol("TombolKunci", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.35, 0), "KUNCI BASE", Color3.fromRGB(200, 40, 40))
+local tombolRebirth = buatTombol("TombolRebirth", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.44, 0), "REBIRTH", Color3.fromRGB(140, 60, 220))
+local tombolTampar = buatTombol("TombolTampar", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.53, 0), "TAMPAR", Color3.fromRGB(220, 140, 40))
+local tombolTeleport = buatTombol("TombolTeleport", UDim2.new(0.18, 0, 0.07, 0), UDim2.new(0.78, 0, 0.62, 0), "TELEPORT PULANG", Color3.fromRGB(40, 160, 220))
+tombolTeleport.Visible = false
+
+local function formatUang(nilai)
+	if nilai >= 1000000000 then
+		return string.format("$%.2f M", nilai / 1000000000)
+	elseif nilai >= 1000000 then
+		return string.format("$%.2f jt", nilai / 1000000)
+	elseif nilai >= 1000 then
+		return string.format("$%.1f rb", nilai / 1000)
+	else
+		return string.format("$%d", math.floor(nilai))
 	end
-	if UserInputService:IsKeyDown(Enum.KeyCode.Right) then
-		dx += 1
+end
+
+updateHUD.OnClientEvent:Connect(function(uangBaru, perDetikBaru, statusOmbak, sisaOmbak, kecepatanOmbak, kunciSisa, rebirth, terisi, slotMaks)
+	uang.Text = formatUang(uangBaru)
+	perDetik.Text = "+" .. formatUang(perDetikBaru) .. "/dtk | Rebirth " .. rebirth .. " | 12 BRAINROT - 6 RARITY - 3 ANCAMAN"
+	if statusOmbak == "Sirene" then
+		ombak.Text = "SIRENE! Banjir mie " .. kecepatanOmbak .. " dalam " .. sisaOmbak .. " dtk!"
+		ombak.TextColor3 = Color3.fromRGB(255, 60, 60)
+	elseif statusOmbak == "Banjir" then
+		ombak.Text = "BANJIR MIE " .. kecepatanOmbak .. "! Lari ke base atau parit!"
+		ombak.TextColor3 = Color3.fromRGB(255, 60, 60)
+	else
+		ombak.Text = "BANJIR MIE: " .. sisaOmbak .. " dtk - Tenang (" .. kecepatanOmbak .. ")"
+		ombak.TextColor3 = Color3.fromRGB(255, 200, 80)
 	end
-	if UserInputService:IsKeyDown(Enum.KeyCode.Up) then
-		dy -= 1
+	if kunciSisa > 0 then
+		tombolKunci.Text = "TERKUNCI " .. kunciSisa .. " dtk"
+	else
+		tombolKunci.Text = "KUNCI BASE"
 	end
-	if UserInputService:IsKeyDown(Enum.KeyCode.Down) then
-		dy += 1
+	slot.Text = "Base: " .. terisi .. "/" .. slotMaks .. " brainrot"
+	if rebirth >= 5 then
+		tombolTeleport.Visible = true
 	end
-	if dx == 0 and dy == 0 then
-		return
-	end
-	x = math.clamp(x + dx * SPEED * dt, 0, ARENA_WIDTH - SQUARE_SIZE)
-	y = math.clamp(y + dy * SPEED * dt, 0, ARENA_HEIGHT - SQUARE_SIZE)
-	place()
+end)
+
+beriPesan.OnClientEvent:Connect(function(teks)
+	pesan.Text = teks
+end)
+
+tombolKunci.MouseButton1Click:Connect(function()
+	remotes:WaitForChild("AksiKunci"):FireServer()
+end)
+tombolRebirth.MouseButton1Click:Connect(function()
+	remotes:WaitForChild("AksiRebirth"):FireServer()
+end)
+tombolTampar.MouseButton1Click:Connect(function()
+	remotes:WaitForChild("AksiTampar"):FireServer()
+end)
+tombolTeleport.MouseButton1Click:Connect(function()
+	remotes:WaitForChild("AksiTeleport"):FireServer()
 end)

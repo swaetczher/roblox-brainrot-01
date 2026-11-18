@@ -1,21 +1,11 @@
-# roblox-brainrot-01 starter
+# CURI BRAINROT: BANJIR MIE AYAM
 
-A working entry for make.fun's "Make the best AI Roblox brainrot game" bounty (roblox-brainrot-01), laid out as your
-repository: a Rojo project whose game is a grey square that moves with the arrow keys. It is a starting point, not a
-winner, and not yet the 3D game the bounty asks for: its square is drawn on the screen, not in Roblox's 3D world.
+Entri make.fun `roblox-brainrot-01` — game 3D steal-a-brainrot Indonesia (Luau + Rojo).
 
-- `main.ts` (Node 22, standard library only) hands the game in: it copies `game.rbxl`, `src/`, `screenshots/` and
-  `PLAY.json` to `/output`, leaving out every name that starts with a dot (such as `.gitkeep` or `.DS_Store`, which
-  fail an entry), and writes `/output/dossier.json` with `vendor/makefun-roblox.ts`, the kit's copy, unchanged.
-- `game.rbxl` is the place Rojo builds from `src/` and `default.project.json`; `screenshots/` holds three captures of
-  it; `PLAY.json` names no place yet, so the gate refuses the starter as it stands until it names your published one.
-- One of your screenshots must also be your game's first thumbnail on Roblox: the same picture, uploaded on the
-  Creator Dashboard with your game's icon.
-- `TOUR.json` is an example of the optional tour: for each screenshot, the keys that bring the game to that screen.
-
-Run it as the grader does, writing `out/` in place of `/output`:
-
-    mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
-
-The rules are on the bounty's page (/bounty/roblox-brainrot-01) and in the kit's RULES.txt,
-which gives every command in order (Before you submit, then Enter).
+- **Loop:** beli 12 brainrot orisinal di karpet merah → taruh di base → hasilkan $/detik → beli yang lebih langka → curi dari base lawan / pertahankan basemu → rebirth.
+- **12 karakter, 6 rarity:** Common, Rare, Epic, Legendary, Mythic, Secret (Tahu Bulat Terbang sampai Raja Indomie Goreng Abadi). Mutasi Emas/Berlian/Kilat/Pelangi/Hantu + trait bumbu Pedas/Manis/Asin (aditif).
+- **3 ancaman nyata di kode:** maling PvP + 3 bot pencuri (base terkunci 60 dtk +10/rebirth, tampar menjatuhkan curian, salip beli 150%), banjir mie tsunami tiap ~50 dtk (sirene + 5 dtk hitung mundur, selamat hanya di base/parit), bos penjaga telur "Bapak Mie Ayam Raksasa" (pecahkan telur → bos mengejar → bawa pulang = menetas).
+- **Rebirth 5 tingkat:** pengali uang x2–x6 + unlock (lantai 2 base, Speed Coil, Perisai Emas, Teleport Pulang).
+- **Struktur:** `src/shared/` (CharacterData, Economy, GameState — satu state server), `src/server/` (WorldBuilder, CharacterFactory, BeltSpawner, BaseManager, StealSystem, WaveSystem, BossEggSystem, RebirthSystem, BotPemain, Remotes, init), `src/client/` (HUD).
+- **Build:** `rojo build default.project.json --output game.rbxl`, lalu `mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts`.
+- `screenshots/` berisi 4 gambar kandidat (1-cover = thumbnail). `PLAY.json` masih placeholder sampai place dipublish Public dari Roblox Studio.
